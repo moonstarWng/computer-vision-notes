@@ -1,6 +1,8 @@
-# 只把学习笔记入库；面试记录、候选人材料、labs、PDF 等一律不推
+# 只把学习笔记和示例代码入库；面试记录、候选人材料、labs、PDF 等一律不推
 /*
 !/.gitignore
+!/.gitattributes
 !/notes/
 !/notes/**
-!/.gitattributes
+!/codes/
+!/codes/**

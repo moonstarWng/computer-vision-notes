@@ -1,0 +1,5 @@
+# 本地环境 / IDE / 缓存，不入库
+.venv/
+.idea/
+__pycache__/
+*.py[cod]
