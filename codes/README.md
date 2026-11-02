@@ -9,7 +9,8 @@
 codes/
 ├── requirements.txt
 ├── M0-计算机视觉导论/
-│   └── 03_noise_robust.py       # 正交投影、损失曲线、残差直方图、估计器对比
+│   ├── 03_noise_robust.py       # 正交投影、损失曲线、残差直方图、估计器对比
+│   └── 04_noise_gallery.py      # 八种噪声图像 + 点云粉尘/鬼影
 └── M1-数学与几何基础/
     ├── 01_rotation.py           # 旋转：hat/vee、exp/log、四元数、det 陷阱
     ├── 01_so3_visual.py         # 图示：旋转效果、SO(3) 的球、线性化误差
@@ -60,6 +61,7 @@ python M1-数学与几何基础/04_kalman.py
 | 脚本 | 笔记 | 关键输出（会对上的数字） |
 |---|---|---|
 | `03_noise_robust.py` | [`3-噪声与误差模型.md`](../notes/M0-计算机视觉导论/3-噪声与误差模型.md) | 10% 离群点下：均值偏 `5.08`，中位数偏 `0.22`，Huber 偏 `0.26` |
+| `04_noise_gallery.py` | [`3-噪声与误差模型.md`](../notes/M0-计算机视觉导论/3-噪声与误差模型.md) §6 | 八种噪声图像 + 点云粉尘/鬼影 |
 | `01_rotation.py` | [`1-旋转.md`](../notes/M1-数学与几何基础/1-旋转.md) | exp/log 往返误差 `4.4e-11`；det=1 但 `RᵀR≠I` |
 | `01_so3_visual.py` | [`1-旋转.md`](../notes/M1-数学与几何基础/1-旋转.md) §1.4 / §2.2 | 4 张图：旋转效果、扫掠、SO(3) 的球、线性化误差 |
 | `02_least_squares.py` | [`2-最小二乘与LM.md`](../notes/M1-数学与几何基础/2-最小二乘与LM.md) | GN 内点 RMSE `0.0903` vs Huber `0.0420` |
@@ -71,6 +73,10 @@ python M1-数学与几何基础/04_kalman.py
 ![SO(3)](M1-数学与几何基础/out/so3_visual.png)
 
 ![噪声与误差](M0-计算机视觉导论/out/noise_robust.png)
+
+![噪声画廊](M0-计算机视觉导论/out/noise_gallery.png)
+
+![点云噪声](M0-计算机视觉导论/out/pointcloud_noise.png)
 
 > 由各自脚本加 `--save` 生成（默认只弹窗、不写文件）。
 
