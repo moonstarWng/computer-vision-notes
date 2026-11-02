@@ -9,11 +9,14 @@
 codes/
 ├── requirements.txt
 └── M0-数学与几何基础/
-    ├── 01_rotation.py           # 旋转：hat/vee、exp/log、四元数、det 陷阱
-    ├── 02_least_squares.py      # 正规方程、GN、LM、Huber + IRLS
-    ├── 03_kabsch.py             # SVD 求 R,t、det 修正、共线退化
-    └── 04_kalman.py             # 误差传播、高斯融合、KF、马氏距离
+    ├── 02_rotation.py           # 旋转：hat/vee、exp/log、四元数、det 陷阱
+    ├── 02_so3_visual.py         # 图示：旋转效果、SO(3) 的球、线性化误差
+    ├── 03_least_squares.py      # 正规方程、GN、LM、Huber + IRLS
+    ├── 04_kabsch.py             # SVD 求 R,t、det 修正、共线退化
+    └── 05_kalman.py             # 误差传播、高斯融合、KF、马氏距离
 ```
+
+编号和笔记对齐：`02_*` ↔ 第 2 篇，`03_*` ↔ 第 3 篇……导论（第 1 篇）没有代码。
 
 ## 怎么读这些脚本
 
@@ -37,25 +40,33 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-依赖只有 `numpy` + `scipy`（scipy 仅用于 01 里的互转对照，没装也能跑，会跳过那一节）。
+依赖只有 `numpy` + `scipy` + `matplotlib`（scipy 仅用于 02 里的互转对照；matplotlib 只有 02_so3_visual 用）。
 
 ## 运行
 
 ```powershell
-python M0-数学与几何基础/01_rotation.py
-python M0-数学与几何基础/02_least_squares.py
-python M0-数学与几何基础/03_kabsch.py
-python M0-数学与几何基础/04_kalman.py
+python M0-数学与几何基础/02_rotation.py
+python M0-数学与几何基础/02_so3_visual.py          # 弹窗显示；加 --save 才存图
+python M0-数学与几何基础/03_least_squares.py
+python M0-数学与几何基础/04_kabsch.py
+python M0-数学与几何基础/05_kalman.py
 ```
 
 ## 脚本 ↔ 笔记对照
 
 | 脚本 | 笔记 | 关键输出（会对上的数字） |
 |---|---|---|
-| `01_rotation.py` | [`1-旋转.md`](../notes/M0-数学与几何基础/1-旋转.md) | exp/log 往返误差 `4.4e-11`；det=1 但 `RᵀR≠I` |
-| `02_least_squares.py` | [`2-最小二乘与LM.md`](../notes/M0-数学与几何基础/2-最小二乘与LM.md) | GN 内点 RMSE `0.0903` vs Huber `0.0420` |
-| `03_kabsch.py` | [`3-SVD求刚体变换.md`](../notes/M0-数学与几何基础/3-SVD求刚体变换.md) | 镜像数据：修正后 det `+1` 残差 `6.962`，不修正 det `-1` 残差 `1.146` |
-| `04_kalman.py` | [`4-协方差传播与卡尔曼.md`](../notes/M0-数学与几何基础/4-协方差传播与卡尔曼.md) | 传播 vs 蒙特卡洛误差 `0.4%`；KF 收敛到 `[5.063, 1.015]` |
+| `02_rotation.py` | [`2-旋转.md`](../notes/M0-数学与几何基础/2-旋转.md) | exp/log 往返误差 `4.4e-11`；det=1 但 `RᵀR≠I` |
+| `02_so3_visual.py` | [`2-旋转.md`](../notes/M0-数学与几何基础/2-旋转.md) §1.4 / §2.2 | 4 张图：旋转效果、扫掠、SO(3) 的球、线性化误差 |
+| `03_least_squares.py` | [`3-最小二乘与LM.md`](../notes/M0-数学与几何基础/3-最小二乘与LM.md) | GN 内点 RMSE `0.0903` vs Huber `0.0420` |
+| `04_kabsch.py` | [`4-SVD求刚体变换.md`](../notes/M0-数学与几何基础/4-SVD求刚体变换.md) | 镜像数据：修正后 det `+1` 残差 `6.962`，不修正 det `-1` 残差 `1.146` |
+| `05_kalman.py` | [`5-协方差传播与卡尔曼.md`](../notes/M0-数学与几何基础/5-协方差传播与卡尔曼.md) | 传播 vs 蒙特卡洛误差 `0.4%`；KF 收敛到 `[5.063, 1.015]` |
+
+## 预览
+
+![SO(3)](M0-数学与几何基础/out/so3_visual.png)
+
+> 由 `python M0-数学与几何基础/02_so3_visual.py --save` 生成（默认只弹窗、不写文件）。
 
 ## 约定
 

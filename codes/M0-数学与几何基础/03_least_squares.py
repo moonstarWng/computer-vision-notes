@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-M0 第 2 篇 · 最小二乘 -> 高斯牛顿 -> LM -> 鲁棒核
-对应笔记：notes/M0-数学与几何基础/2-最小二乘与LM.md（§2~§7）
+M0 第 3 篇 · 最小二乘 -> 高斯牛顿 -> LM -> 鲁棒核
+对应笔记：notes/M0-数学与几何基础/3-最小二乘与LM.md（§2~§7）
 
 这个脚本回答四个问题
 --------------------
@@ -12,10 +12,23 @@ M0 第 2 篇 · 最小二乘 -> 高斯牛顿 -> LM -> 鲁棒核
 
 运行
 ----
-    python 02_least_squares.py
+    python 03_least_squares.py
 
 场景：拟合 y = a·exp(b·x)，数据里故意放 3 个离群点。
 """
+
+# --------------------------------------------------------------------
+# 【命名小词典】（英文不好也能看懂函数名）
+#   least squares  最小二乘
+#   residual       残差（预测值 - 观测值）
+#   Jacobian       雅可比矩阵（所有一阶偏导组成的矩阵，人名）
+#   Gauss-Newton   高斯-牛顿（Gauss、Newton 都是人名），简称 GN
+#   Levenberg-Marquardt  莱文贝格-马夸特（两个人名），简称 LM
+#   IRLS           Iteratively Reweighted Least Squares，迭代重加权最小二乘
+#   Huber          胡伯核（Peter Huber，人名）
+#   inlier/outlier 内点 / 离群点
+#   RMSE           Root Mean Square Error，均方根误差
+# --------------------------------------------------------------------
 
 import numpy as np
 
@@ -26,6 +39,8 @@ import numpy as np
 
 def demo_linear():
     """
+    【函数名】demo = 演示；linear = 线性的（线性最小二乘）
+
     线性问题：已知 A（50×3）和 b（50），求 x 使 ‖Ax − b‖² 最小。
 
     正规方程（对 x 求导令 0）：
@@ -74,6 +89,8 @@ def demo_linear():
 
 def make_data(seed=0):
     """
+    【函数名】make = 生成；data = 数据：造一批测试数据
+
     造一批带离群点的数据。
 
     真模型：y = 2·exp(0.5x)
@@ -91,6 +108,8 @@ def make_data(seed=0):
 
 def residual(p, x, y):
     """
+    【函数名】residual = 残差（预测值 - 观测值）
+
     残差：预测值 − 观测值
 
         r_i(p) = a·exp(b·x_i) − y_i          p = (a, b)
@@ -104,6 +123,8 @@ def residual(p, x, y):
 
 def jacobian(p, x):
     """
+    【函数名】jacobian = 雅可比矩阵（Jacobian）：所有一阶偏导排成的矩阵
+
     雅可比矩阵 J = ∂r/∂p，形状 (m, 2)：m 个残差、2 个参数。
 
     对残差 r_i = a·exp(b·x_i) − y_i 求偏导：
@@ -120,6 +141,8 @@ def jacobian(p, x):
 
 def gauss_newton(p, x, y, iters=50):
     """
+    【函数名】gauss_newton = 高斯-牛顿：Gauss（高斯）、Newton（牛顿）都是人名
+
     高斯牛顿法
 
     每一步做三件事：
@@ -147,6 +170,8 @@ def gauss_newton(p, x, y, iters=50):
 
 def levenberg_marquardt(p, x, y, lam=1e-3, iters=300):
     """
+    【函数名】levenberg_marquardt = 莱文贝格-马夸特：Levenberg、Marquardt 都是人名，简称 LM
+
     LM（Levenberg-Marquardt）：给高斯牛顿装了"刹车"
 
         (J^T J + λ·diag(J^T J)) δ = -J^T r
@@ -189,6 +214,8 @@ def levenberg_marquardt(p, x, y, lam=1e-3, iters=300):
 
 def huber_weight(r, delta=0.5):
     """
+    【函数名】huber = 胡伯（Peter Huber，人名）；weight = 权重
+
     Huber 损失的权重函数（IRLS 用）
 
         ρ(r) = r²/2                |r| ≤ δ
@@ -208,6 +235,8 @@ def huber_weight(r, delta=0.5):
 
 def irls_huber(p, x, y, delta=0.5, iters=100):
     """
+    【函数名】irls = Iteratively Reweighted Least Squares 迭代重加权最小二乘；huber = 胡伯核
+
     IRLS（迭代重加权最小二乘）：鲁棒核的标准工程实现
 
     每一轮：
@@ -233,6 +262,8 @@ def irls_huber(p, x, y, delta=0.5, iters=100):
 
 def inlier_rmse(p, x, y, mask):
     """
+    【函数名】inlier = 内点（没被当成离群点的观测）；rmse = Root Mean Square Error 均方根误差
+
     只在"内点"上算 RMSE（均方根误差）。
 
     为什么要分开算？
@@ -248,6 +279,12 @@ def inlier_rmse(p, x, y, mask):
 # =====================================================================
 
 def demo_nonlinear():
+    """
+    【函数名】demo = 演示；nonlinear = 非线性的
+
+    三件事：造带离群点的数据 -> 分别用 GN / LM / Huber 拟合 -> 对比内点 RMSE。
+    最后有一个断言：Huber 必须比 GN 更准，否则说明实现被改坏了。
+    """
     x, y, _ = make_data()
 
     mask = np.ones(x.size, bool)                # 全 True
@@ -274,6 +311,11 @@ def demo_nonlinear():
 
 
 def main():
+    """
+    【函数名】main = 主函数：程序从这里开始执行
+
+    先演示线性最小二乘（有闭式解），再演示非线性（要迭代）。
+    """
     demo_linear()
     demo_nonlinear()
     print("ALL DONE")

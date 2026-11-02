@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-M0 第 3 篇 · SVD 求刚体变换（Kabsch）
-对应笔记：notes/M0-数学与几何基础/3-SVD求刚体变换.md（§1~§6）
+M0 第 4 篇 · SVD 求刚体变换（Kabsch）
+对应笔记：notes/M0-数学与几何基础/4-SVD求刚体变换.md（§1~§6）
 
 这个脚本回答四个问题
 --------------------
@@ -12,10 +12,20 @@ M0 第 3 篇 · SVD 求刚体变换（Kabsch）
 
 运行
 ----
-    python 03_kabsch.py
+    python 04_kabsch.py
 
 三个实验：正常加噪、镜像数据、共线退化。
 """
+
+# --------------------------------------------------------------------
+# 【命名小词典】（英文不好也能看懂函数名）
+#   Kabsch        卡巴赫（Wolfgang Kabsch，人名）：用 SVD 求刚体变换的算法
+#   SVD           Singular Value Decomposition，奇异值分解
+#   det           determinant 行列式
+#   mirror        镜像（反射，det = -1）
+#   degenerate    退化（信息不足，解不唯一）
+#   residual      残差
+# --------------------------------------------------------------------
 
 import numpy as np
 
@@ -26,6 +36,8 @@ import numpy as np
 
 def kabsch(P, Q):
     """
+    【函数名】kabsch = 卡巴赫（Wolfgang Kabsch，人名）：指他 1976 年提出的 SVD 配准算法
+
     给定一一对应的两组点 P、Q（都是 N×3，一行一个点），
     求旋转 R 和平移 t，使 R·p_i + t 尽量接近 q_i。
 
@@ -80,9 +92,11 @@ def kabsch(P, Q):
 
 def rodrigues(w):
     """
+    【函数名】rodrigues = 罗德里格斯（人名）：旋转向量 -> 旋转矩阵，这里只用来造测试数据
+
     旋转向量 -> 旋转矩阵（这里只用来造测试数据）
 
-    公式见第 1 篇；实现几乎一样，保留一份是为了让本文件可以独立运行。
+    公式见第 2 篇；实现几乎一样，保留一份是为了让本文件可以独立运行。
     """
     theta = np.linalg.norm(w)
     if theta < 1e-12:
@@ -96,6 +110,8 @@ def rodrigues(w):
 
 def residual(P, Q, R, t):
     """
+    【函数名】residual = 残差：所有点的误差加起来有多大
+
     整体残差：‖R·p_i + t − q_i‖ 的总和（Frobenius 范数）
 
     注意 P @ R.T 是"对每一行做 R·p"的写法：
@@ -111,6 +127,8 @@ def residual(P, Q, R, t):
 
 def demo_normal():
     """
+    【函数名】demo = 演示；normal = 正常的（没有镜像、没有退化）
+
     正常情况：30 个点，加 1cm 噪声。
 
     看两件事：
@@ -136,6 +154,8 @@ def demo_normal():
 
 def demo_mirror(P, t_true):
     """
+    【函数名】demo = 演示；mirror = 镜像（把点云翻了一面）
+
     镜像数据：目标点云是源点云"翻了一面"。
 
     这时"完美拟合"的解是一个反射矩阵（det = -1），不是旋转。
@@ -166,6 +186,8 @@ def demo_mirror(P, t_true):
 
 def demo_degenerate(R_true, t_true):
     """
+    【函数名】demo = 演示；degenerate = 退化的（信息不足、解不唯一）
+
     共线退化：10 个点全部落在一条直线上（x 轴）。
 
     此时 H 的秩只有 1，S = [s, 0, 0]：

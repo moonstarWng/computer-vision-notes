@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-M0 第 1 篇 · 旋转：表示、互转、优化
-对应笔记：notes/M0-数学与几何基础/1-旋转.md（§2 六种表示、§6 代码实验）
+M0 第 2 篇 · 旋转：表示、互转、优化
+对应笔记：notes/M0-数学与几何基础/2-旋转.md（§2 六种表示、§6 代码实验）
 
 这个脚本回答三个问题
 --------------------
@@ -11,7 +11,7 @@ M0 第 1 篇 · 旋转：表示、互转、优化
 
 运行
 ----
-    python 01_rotation.py
+    python 02_rotation.py
 
 预期：最后一行打印 ALL PASS；中途任何断言失败会直接报错并给出原因。
 
@@ -20,6 +20,19 @@ M0 第 1 篇 · 旋转：表示、互转、优化
 hat  ->  rodrigues  ->  log_so3  ->  quat_from_rotvec / rotvec_from_quat
 （函数定义在前，演示在后面的 demo_* 里，可以只看 main 的调用顺序）
 """
+
+# --------------------------------------------------------------------
+# 【命名小词典】（英文不好也能看懂函数名）
+#   hat       帽子算子：向量 -> 叉乘矩阵（像给向量戴上帽子）
+#   vee       倒 V 算子：叉乘矩阵 -> 向量（hat 的逆）
+#   Rodrigues 罗德里格斯（人名）：旋转向量 -> 旋转矩阵的公式
+#   SO(3)     Special Orthogonal 3，三维旋转群
+#   so(3)     对应的小写李代数（旋转向量所在的空间）
+#   quat      quaternion 四元数
+#   rotvec    rotation vector 旋转向量
+#   det       determinant 行列式
+#   demo      demonstration 演示
+# --------------------------------------------------------------------
 
 import numpy as np
 
@@ -30,6 +43,8 @@ import numpy as np
 
 def hat(w):
     """
+    【函数名】hat = 帽子（hat operator）：把 3 维向量变成叉乘矩阵，像给向量戴了顶帽子
+
     三维向量 -> 反对称矩阵（也叫叉乘矩阵）
 
         数学定义：
@@ -52,6 +67,8 @@ def hat(w):
 
 def vee(W):
     """
+    【函数名】vee = 倒 V（vee operator）：hat 的逆，把叉乘矩阵还原成向量（读作 vee）
+
     反对称矩阵 -> 三维向量（hat 的逆运算）
 
     只挑出 (2,1)、(0,2)、(1,0) 三个位置：
@@ -70,6 +87,8 @@ def vee(W):
 
 def rodrigues(w):
     """
+    【函数名】rodrigues = 罗德里格斯（Olinde Rodrigues，人名）：指他提出的旋转公式
+
     旋转向量 ω = θk  ->  旋转矩阵 R，即 exp(ω^)
 
     罗德里格斯公式：
@@ -98,6 +117,8 @@ def rodrigues(w):
 
 def log_so3(R):
     """
+    【函数名】log_so3 = log + SO(3)：log 是对数映射，SO(3) 是三维旋转群
+
     旋转矩阵 R  ->  旋转向量 ω，即 log(R)
 
     三个公式：
@@ -140,6 +161,8 @@ def log_so3(R):
 
 def quat_from_rotvec(w):
     """
+    【函数名】quat = quaternion 四元数；rotvec = rotation vector 旋转向量；from = 从……转换
+
     旋转向量 -> 单位四元数，约定顺序为 (w, x, y, z)，即"标量在前"
 
     公式：
@@ -161,6 +184,8 @@ def quat_from_rotvec(w):
 
 def rotvec_from_quat(q):
     """
+    【函数名】rotvec = rotation vector 旋转向量；quat = quaternion 四元数；from = 从……转换
+
     单位四元数 -> 旋转向量
 
     做法：
@@ -189,6 +214,8 @@ def rotvec_from_quat(q):
 
 def check_rotation(R, name="R", atol=1e-6):
     """
+    【函数名】check = 检查；rotation = 旋转：检查矩阵是不是合法旋转
+
     检查一个 3×3 矩阵到底是不是"旋转"（这是工程防线，不是数学练习）
 
     两个条件缺一不可：
@@ -209,7 +236,10 @@ def check_rotation(R, name="R", atol=1e-6):
 # =====================================================================
 
 def demo_basic():
-    """绕 z 轴转 90°：手算能对上的最基本例子"""
+    """绕 z 轴转 90°：手算能对上的最基本例子
+    【函数名】demo = demonstration 演示；basic = 基础的
+    """
+
     print("== 1. rodrigues：绕 z 转 90° ==")
     R = rodrigues(np.array([0.0, 0.0, np.pi / 2]))   # 轴是 z，角度 π/2
     print(R.round(3))                                # 应该看到 [[0,-1,0],[1,0,0],[0,0,1]]
@@ -221,6 +251,8 @@ def demo_basic():
 
 def demo_roundtrip(seed=0):
     """
+    【函数名】demo = 演示；roundtrip = 往返（转出去再转回来）
+
     随机抽 2000 个旋转，走 R -> ω -> R 一圈，看最大误差。
     误差应该在 1e-11 量级（只有浮点舍入），说明 exp/log 互逆。
     """
@@ -236,7 +268,10 @@ def demo_roundtrip(seed=0):
 
 
 def demo_quaternion(seed=1):
-    """旋转向量 -> 四元数 -> 旋转向量，验证不丢信息"""
+    """旋转向量 -> 四元数 -> 旋转向量，验证不丢信息
+    【函数名】demo = 演示；quaternion = 四元数
+    """
+
     print("== 3. 旋转向量 <-> 四元数 ==")
     rng = np.random.default_rng(seed)
     err = 0.0
@@ -249,6 +284,8 @@ def demo_quaternion(seed=1):
 
 def demo_pi_ambiguity():
     """
+    【函数名】demo = 演示；pi = 圆周率 π；ambiguity = 歧义（同一个旋转有多个表示）
+
     θ = π 时，ω 和 −ω 是同一个旋转（球面上对径点粘合）。
     所以 log 在 π 附近不唯一，这是"旋转向量不能当全局唯一表示"的根本原因。
     """
@@ -260,6 +297,8 @@ def demo_pi_ambiguity():
 
 def demo_det_trap():
     """
+    【函数名】demo = 演示；det = determinant 行列式；trap = 陷阱
+
     在 R 上直接加一个"只有 (1,1) 位置为 1"的扰动：
     行列式居然还是 1，但 RᵀR 已经不是单位阵了 —— 说明它被"剪切"了。
     结论：det=1 是必要条件，不是充分条件。
@@ -274,7 +313,10 @@ def demo_det_trap():
 
 
 def demo_scipy_chain():
-    """和工业库 scipy 对一下：四种表示互相转换的结果是否一致"""
+    """和工业库 scipy 对一下：四种表示互相转换的结果是否一致
+    【函数名】demo = 演示；scipy = 科学计算库；chain = 链条（一串表示互相转换）
+    """
+
     print("== 6. scipy 走一圈（R / q / omega / 欧拉角） ==")
     try:
         from scipy.spatial.transform import Rotation as Rot
@@ -295,6 +337,12 @@ def demo_scipy_chain():
 
 
 def main():
+    """
+    【函数名】main = 主函数：程序从这里开始执行
+
+    按顺序调用各个 demo；最后做一次交叉验证：
+    旋转向量路径和四元数路径算出的 R 必须完全相同。
+    """
     demo_basic()
     demo_roundtrip()
     demo_quaternion()
