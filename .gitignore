@@ -1,0 +1,6 @@
+# 只把学习笔记入库；面试记录、候选人材料、labs、PDF 等一律不推
+/*
+!/.gitignore
+!/notes/
+!/notes/**
+!/.gitattributes
