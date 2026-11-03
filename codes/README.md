@@ -8,6 +8,12 @@
 ```
 codes/
 ├── requirements.txt
+├── S0-图像基础与工具链/
+│   ├── 00_toolchain.py          # NumPy：shape/axis、dtype、广播、视图、坐标
+│   ├── 01_image_basics.py       # 图像：BGR、灰度权重、量化 PSNR、混叠
+│   ├── 02_convolution.py        # 卷积：手写、im2col、可分离高斯、Sobel、边界
+│   ├── 03_histogram.py          # 直方图：均衡、CLAHE、伽马、Otsu
+│   └── 04_edges_morphology.py   # 边缘：Canny 五步、形态学、连通域
 ├── M0-计算机视觉导论/
 │   ├── 03_noise_robust.py       # 正交投影、损失曲线、残差直方图、估计器对比
 │   └── 04_noise_gallery.py      # 八种噪声图像 + 点云粉尘/鬼影
@@ -43,11 +49,16 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-依赖只有 `numpy` + `scipy` + `matplotlib`（scipy 仅用于旋转的互转对照；matplotlib 用于两张图示脚本）。
+依赖只有 `numpy` + `scipy` + `matplotlib`（scipy 用于旋转互转、S0 的参考卷积/连通域；matplotlib 用于图示脚本）。
 
 ## 运行
 
 ```powershell
+python S0-图像基础与工具链/00_toolchain.py
+python S0-图像基础与工具链/01_image_basics.py --save
+python S0-图像基础与工具链/02_convolution.py --save
+python S0-图像基础与工具链/03_histogram.py --save
+python S0-图像基础与工具链/04_edges_morphology.py --save
 python M0-计算机视觉导论/03_noise_robust.py            # 弹窗；加 --save 才存图
 python M1-数学与几何基础/01_rotation.py
 python M1-数学与几何基础/01_so3_visual.py              # 弹窗；加 --save 才存图
@@ -60,6 +71,11 @@ python M1-数学与几何基础/04_kalman.py
 
 | 脚本 | 笔记 | 关键输出（会对上的数字） |
 |---|---|---|
+| `00_toolchain.py` | [`0-环境与工具链.md`](../notes/S0-图像基础与工具链/0-环境与工具链.md) | `uint8(200)+100=44`；`mean(axis=0) -> (W,3)`；视图 `base is img` |
+| `01_image_basics.py` | [`1-图像是什么.md`](../notes/S0-图像基础与工具链/1-图像是什么.md) | 2 bit PSNR `11.56 dB`；纯绿加权 `149.7` vs 平均 `85.0`；隔点取样 `255` vs 真值 `63.75` |
+| `02_convolution.py` | [`2-卷积与滤波.md`](../notes/S0-图像基础与工具链/2-卷积与滤波.md) | 手写 vs scipy `1.78e-15`；3×3 im2col 快 `164×`；可分离高斯快 `49.5×`；补零角点 `30.86` |
+| `03_histogram.py` | [`3-直方图与点运算.md`](../notes/S0-图像基础与工具链/3-直方图与点运算.md) | 均衡 σ `11.32→72.58`；CLAHE 背景噪声 `2.4×` vs 全局 `8.6×`；Otsu `129`，光照不均准确率 `84.71%` |
+| `04_edges_morphology.py` | [`4-边缘检测与形态学.md`](../notes/S0-图像基础与工具链/4-边缘检测与形态学.md) | NMS 压到 `24.8%`；滞后 `1671→1753`；闭运算 `+59` 像素；连通域 `92→1` |
 | `03_noise_robust.py` | [`3-噪声与误差模型.md`](../notes/M0-计算机视觉导论/3-噪声与误差模型.md) | 10% 离群点下：均值偏 `5.08`，中位数偏 `0.22`，Huber 偏 `0.26` |
 | `04_noise_gallery.py` | [`3-噪声与误差模型.md`](../notes/M0-计算机视觉导论/3-噪声与误差模型.md) §6 | 八种噪声图像 + 点云粉尘/鬼影 |
 | `01_rotation.py` | [`1-旋转.md`](../notes/M1-数学与几何基础/1-旋转.md) | exp/log 往返误差 `4.4e-11`；det=1 但 `RᵀR≠I` |
@@ -69,6 +85,14 @@ python M1-数学与几何基础/04_kalman.py
 | `04_kalman.py` | [`4-协方差传播与卡尔曼.md`](../notes/M1-数学与几何基础/4-协方差传播与卡尔曼.md) | 传播 vs 蒙特卡洛误差 `0.4%`；KF 收敛到 `[5.063, 1.015]` |
 
 ## 预览
+
+![S0 图像基础](S0-图像基础与工具链/out/image_basics.png)
+
+![S0 卷积](S0-图像基础与工具链/out/convolution.png)
+
+![S0 直方图](S0-图像基础与工具链/out/histogram.png)
+
+![S0 边缘与形态学](S0-图像基础与工具链/out/edges_morphology.png)
 
 ![SO(3)](M1-数学与几何基础/out/so3_visual.png)
 
