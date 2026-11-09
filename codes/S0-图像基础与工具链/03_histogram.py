@@ -4,13 +4,14 @@ S0 第 3 篇 —— 直方图与点运算：均衡、伽马、阈值
 
 对应笔记：notes/S0-图像基础与工具链/3-直方图与点运算.md
 
-这个脚本回答五个问题
+这个脚本回答六个问题
 --------------------
 1. 直方图到底统计什么？为什么要先看它再调阈值？
 2. 直方图均衡化为什么能把"挤在中间"的灰度拉开？公式怎么推？
 3. 均衡化会放大噪声，CLAHE 是怎么补救的？
 4. 伽马校正在改什么？为什么显示器和相机都要它？
 5. Otsu 阈值为什么"自动"？它在什么情况下会失效？
+6. 熵到底能说明什么？为什么它不能当"图变好了"的验收指标？
 
 运行：
     python 03_histogram.py           # 弹窗
@@ -126,15 +127,19 @@ def equalize_hist(img):
     return lut[img], lut, cdf
 
 
-def demo_equalize():
+def demo_equalize(img=None):
     """
     【demo_equalize】contrast stretch → 对比度拉伸
 
     输入灰度集中在 [107, 143]，标准差很小；
     均衡化后铺满 [0, 255]，标准差显著变大。
     但注意：均衡化是**全局**的，它不知道"哪里是零件、哪里是背景"。
+
+    img 由调用方传入，保证「一、直方图」和「二、均衡化」用的是**同一张图**
+    （否则两次 make_low_contrast() 会各自抽一份噪声，打印的数字对不上）。
     """
-    img = make_low_contrast()
+    if img is None:
+        img = make_low_contrast()
     eq, lut, cdf = equalize_hist(img)
 
     print("输入：范围 [{}, {}]，均值 {:.1f}，标准差 {:.2f}，熵 {:.2f} bit，不同灰度 {} 级".format(
@@ -336,11 +341,15 @@ def otsu_threshold(img):
 
 
 def make_bimodal(h=120, w=160):
-    """【make_bimodal】bimodal image → 双峰图（背景 80，零件 180，各带噪声）"""
+    """【make_bimodal】bimodal image → 双峰图（背景 80，零件 180，各带噪声）
+
+    用自己的固定种子：不受前面 demo 消耗随机数的影响，
+    这样笔记里贴的数字不会因为调用顺序变化而变。
+    """
     yy, xx = np.mgrid[0:h, 0:w]
     obj = (xx - w / 2) ** 2 + (yy - h / 2) ** 2 < (min(h, w) * 0.28) ** 2
     img = np.where(obj, 180.0, 80.0)
-    img += rng.normal(0, 12, img.shape)
+    img += np.random.default_rng(2).normal(0, 12, img.shape)
     return np.clip(img, 0, 255).astype(np.uint8), obj
 
 
@@ -371,7 +380,67 @@ def demo_otsu():
 
 
 # =====================================================================
-# 六、画图
+# 六、熵的适用边界：熵高不等于图好
+# =====================================================================
+
+def make_entropy_gallery(n=256):
+    """
+    【make_entropy_gallery】entropy gallery → 四张"std 排序"与"熵排序"不一致的图
+
+    固定种子，保证每次运行输出一致：
+
+        均匀噪声     ：每个像素独立随机 -> 熵顶到 8 bit 上限，但没有可用信息
+        高斯灰度     ：亮度连续分布     -> 熵高，但仍有缓慢结构
+        低对比度零件 ：灰度挤在一起     -> 熵中等
+        干净二值零件 ：只有两个灰度级   -> 熵最低，但边缘能定位到单像素
+
+    四张图只为说明一件事：熵衡量"取值有多少种可能"，不衡量"图能不能用"。
+    """
+    r = np.random.default_rng(1)
+    yy, xx = np.mgrid[0:n, 0:n].astype(np.float64)
+
+    noise = r.integers(0, 256, (n, n), dtype=np.uint8)
+    gauss = np.clip(r.normal(128, 40, (n, n)), 0, 255).astype(np.uint8)
+
+    low = 108 + 10 * np.sin(xx / 35.0) * np.cos(yy / 27.0)
+    low[(xx > n * 0.20) & (xx < n * 0.66) & (yy > n * 0.14) & (yy < n * 0.49)] += 22
+    low = np.clip(low, 0, 255).astype(np.uint8)
+
+    part = np.zeros((n, n), np.uint8)
+    part[int(n * 0.23):int(n * 0.74), int(n * 0.23):int(n * 0.74)] = 255
+
+    return [("均匀噪声", noise), ("高斯灰度", gauss),
+            ("低对比度零件", low), ("干净二值零件", part)]
+
+
+def demo_entropy_limits():
+    """
+    【demo_entropy_limits】entropy limits → 熵的适用边界
+
+    输出一张表就够了：std 和熵的排序并不一致。
+    """
+    stats = {}
+    for name, im in make_entropy_gallery():
+        h = entropy(im)
+        lc = float(local_contrast(im).mean())
+        stats[name] = (float(im.std()), h, lc)
+        print("  {}: std {:6.2f} | 熵 {:5.3f} bit | 2^H {:5.1f} | 9x9 局部 std {:5.2f}".format(
+            name, im.std(), h, 2 ** h, lc))
+
+    noise, part = stats["均匀噪声"], stats["干净二值零件"]
+
+    print("读法：噪声熵 {:.3f} 顶到 8 bit 上限，却没有可用信息；".format(noise[1]))
+    print("      二值零件熵 {:.3f} 最低，边缘却能定位到单像素。".format(part[1]))
+    print("结论：熵衡量『取值有多少种可能』，不衡量『图能不能用』。")
+
+    assert noise[1] > 7.9                 # 噪声接近 8 bit 上限
+    assert part[1] < 1.0                  # 干净二值图熵极低
+    assert part[0] > noise[0]             # 但 std 反而更大
+    assert noise[2] > 5 * part[2]         # 噪声每个窗口都在变，零件只在边缘变
+
+
+# =====================================================================
+# 七、画图
 # =====================================================================
 
 def plot_all(raw, eq, cla, gamma_dark, gamma_bright, bimodal, t, uneven, t2):
@@ -435,7 +504,7 @@ def main():
 
     print("\n" + "=" * 60)
     print("二、直方图均衡化")
-    img, eq, lut = demo_equalize()
+    img, eq, lut = demo_equalize(raw)
 
     print("\n" + "=" * 60)
     print("三、CLAHE")
@@ -450,7 +519,11 @@ def main():
     bimodal, t, uneven, t2 = demo_otsu()
 
     print("\n" + "=" * 60)
-    print("六、画图")
+    print("六、熵的适用边界")
+    demo_entropy_limits()
+
+    print("\n" + "=" * 60)
+    print("七、画图")
     plot_all(raw, eq, cla, gamma_dark, gamma_bright, bimodal, t, uneven, t2)
 
     print("\nALL PASS")
