@@ -27,7 +27,8 @@ codes/
     ├── 01_pinhole.py            # 针孔：fx=f/dx、投影/反投影、mm/px、resize/crop 改 K
     ├── 02_distortion.py         # 畸变：径向/切向、桶形/枕形、迭代去畸变、视场变化
     ├── 03_zhang_calib.py        # 标定：DLT 单应、B=K⁻ᵀK⁻¹ 闭式解、手写 LM、退化演示
-    └── 04_pnp_stereo.py         # PnP：DLT+LM、RANSAC 去外点、双目视差与 Z² 精度
+    ├── 04_pnp_stereo.py         # PnP：DLT+LM、RANSAC 去外点、双目视差与 Z² 精度
+    └── 05_handeye_cutcircle.py  # 手眼：切割圆方案、Kabsch、单高度/共线退化、H 转置坑
 ```
 
 编号和笔记对齐：`01_*` ↔ M1 第 1 篇，`02_*` ↔ M1 第 2 篇……M0 只有噪声篇有代码。
@@ -74,6 +75,7 @@ python M2-相机模型与标定/01_pinhole.py
 python M2-相机模型与标定/02_distortion.py
 python M2-相机模型与标定/03_zhang_calib.py
 python M2-相机模型与标定/04_pnp_stereo.py
+python M2-相机模型与标定/05_handeye_cutcircle.py
 ```
 
 ## 脚本 ↔ 笔记对照
@@ -96,6 +98,7 @@ python M2-相机模型与标定/04_pnp_stereo.py
 | `02_distortion.py` | [`2-畸变与去畸变.md`](../notes/M2-相机模型与标定/2-畸变与去畸变.md) | 四角位移 `27.23/29.26/26.15/28.18 px`；迭代 3 次残差 `2.16e-03 px`；顺序错差 `18.69 px`；视场需放大 `1.0388` |
 | `03_zhang_calib.py` | [`3-张正友标定.md`](../notes/M2-相机模型与标定/3-张正友标定.md) | 单应 `0.253 px`；线性 `fx=1798.94`（真值 1800）；LM 后 RMSE `0.258 px`；2 姿态 `rank=4` |
 | `04_pnp_stereo.py` | [`4-外参-PnP与双目.md`](../notes/M2-相机模型与标定/4-外参-PnP与双目.md) | PnP DLT `0.414°` → LM `0.071°`；30% 外点 `170.7°` → RANSAC `0.026°`；1 m 视差 `139.13 px` |
+| `05_handeye_cutcircle.py` | [`5-手眼标定-切割圆实战.md`](../notes/M2-相机模型与标定/5-手眼标定-切割圆实战.md) | 8 点 `RMS 0.0165 mm` / 旋转 `0.0009°`；单高度旋转错 `90.10°`；共线 `90.40°` 但残差 0；转置解 RMS `1.696 mm`；纯平移 AX=XB 残差 `8.4e-16` |
 
 ## 预览
 
